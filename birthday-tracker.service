@@ -1,0 +1,16 @@
+[Unit]
+Description=Birthday Tracker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+WorkingDirectory=/home/alex/git/birthday-tracker
+EnvironmentFile=/home/alex/git/birthday-tracker/.env
+ExecStart=/home/alex/.bun/bin/bun run /home/alex/git/birthday-tracker/src/server.ts
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

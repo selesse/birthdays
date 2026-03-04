@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+LOCAL_PATH="$(dirname "$0")/.."
+
+# Load from .env
+if [ -f "$LOCAL_PATH/.env" ]; then
+  export $(grep -v '^#' "$LOCAL_PATH/.env" | xargs)
+fi
+
+if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_PATH" ]; then
+  echo "Error: DEPLOY_HOST and DEPLOY_PATH must be set in .env"
+  exit 1
+fi
+
+SERVICE_DIR="~/.config/systemd/user"
+SERVICE_NAME="birthday-tracker"
+
+echo "Copying DB from server..."
+rsync -avz "$DEPLOY_HOST:$DEPLOY_PATH/*.db" "$LOCAL_PATH/" 2>/dev/null || echo "No DB found on server (first deploy?)"
+
+echo "Syncing files to server..."
+rsync -avz --exclude 'node_modules' --exclude '*.db' --exclude 'bun.lock' --exclude 'dist' \
+  "$LOCAL_PATH/" "$DEPLOY_HOST:$DEPLOY_PATH/"
+
+echo "Installing dependencies..."
+ssh "$DEPLOY_HOST" "cd $DEPLOY_PATH && ~/.bun/bin/bun install"
+
+echo "Installing user service..."
+ssh "$DEPLOY_HOST" "mkdir -p $SERVICE_DIR && cp $DEPLOY_PATH/birthday-tracker.service $SERVICE_DIR/"
+ssh "$DEPLOY_HOST" "systemctl --user daemon-reload && systemctl --user enable $SERVICE_NAME"
+
+echo "Restarting $SERVICE_NAME service..."
+ssh "$DEPLOY_HOST" "systemctl --user restart $SERVICE_NAME"
+
+echo "Verifying service started..."
+if ssh "$DEPLOY_HOST" "sleep 2 && systemctl --user is-active $SERVICE_NAME"; then
+  echo "Done! Service restarted on $DEPLOY_HOST"
+else
+  echo "Warning: Service may not have started correctly"
+  ssh "$DEPLOY_HOST" "systemctl --user status $SERVICE_NAME" || true
+  exit 1
+fi
