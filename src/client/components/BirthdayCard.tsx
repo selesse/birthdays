@@ -5,8 +5,8 @@ import { AddBirthday } from "./AddBirthday";
 interface Props {
   child: Child;
   age: AgeInfo;
-  onDelete: (id: number) => void;
-  onEdit: (id: number, name: string, birthdate: string, note?: string) => void;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, name: string, birthdate: string, note?: string) => void;
 }
 
 function ageBadge(age: AgeInfo): string {

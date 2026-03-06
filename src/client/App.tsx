@@ -2,13 +2,9 @@ import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
+import type { StorageAdapter, Child } from "../storage/types";
 
-export interface Child {
-  id: number;
-  name: string;
-  birthdate: string;
-  note: string | null;
-}
+export type { Child };
 
 export interface AgeInfo {
   years: number;
@@ -59,7 +55,7 @@ export function computeAge(birthdate: string, today: Temporal.PlainDate): AgeInf
   };
 }
 
-export function App() {
+export function App({ storage }: { storage: StorageAdapter }) {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -67,8 +63,7 @@ export function App() {
   const today = Temporal.Now.plainDateISO();
 
   async function fetchChildren() {
-    const res = await fetch("/api/children");
-    const data = await res.json();
+    const data = await storage.getChildren();
     setChildren(data);
     setLoading(false);
   }
@@ -78,27 +73,19 @@ export function App() {
   }, []);
 
   async function handleAdd(name: string, birthdate: string, note?: string) {
-    await fetch("/api/children", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, birthdate, note }),
-    });
-    await fetchChildren();
+    const data = await storage.addChild(name, birthdate, note);
+    setChildren(data);
     setShowAdd(false);
   }
 
-  async function handleDelete(id: number) {
-    await fetch(`/api/children/${id}`, { method: "DELETE" });
+  async function handleDelete(id: string) {
+    await storage.deleteChild(id);
     setChildren((prev) => prev.filter((c) => c.id !== id));
   }
 
-  async function handleEdit(id: number, name: string, birthdate: string, note?: string) {
-    await fetch(`/api/children/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, birthdate, note }),
-    });
-    await fetchChildren();
+  async function handleEdit(id: string, name: string, birthdate: string, note?: string) {
+    const data = await storage.updateChild(id, name, birthdate, note);
+    setChildren(data);
   }
 
   if (loading) {
@@ -117,7 +104,7 @@ export function App() {
     );
   }
 
-  // Sort: birthdays today first, then upcoming soonest, then by age
+  // Sort: birthdays today first, then upcoming soonest, then by name
   const sorted = [...children].sort((a, b) => {
     const ageA = computeAge(a.birthdate, today);
     const ageB = computeAge(b.birthdate, today);
