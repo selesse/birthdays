@@ -55,7 +55,7 @@ export function computeAge(birthdate: string, today: Temporal.PlainDate): AgeInf
   };
 }
 
-export function App({ storage }: { storage: StorageAdapter }) {
+export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: string }) {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -71,6 +71,27 @@ export function App({ storage }: { storage: StorageAdapter }) {
   useEffect(() => {
     fetchChildren();
   }, []);
+
+  useEffect(() => {
+    if (!sseUrl) return;
+    const es = new EventSource(sseUrl);
+    es.addEventListener("birthday-added", (e) => {
+      const added = JSON.parse(e.data) as Child;
+      setChildren((prev) => {
+        if (prev.some((c) => c.id === added.id)) return prev;
+        return [...prev, added];
+      });
+    });
+    es.addEventListener("birthday-deleted", (e) => {
+      const { id } = JSON.parse(e.data) as { id: string };
+      setChildren((prev) => prev.filter((c) => c.id !== id));
+    });
+    es.addEventListener("birthday-updated", (e) => {
+      const updated = JSON.parse(e.data) as Child[];
+      setChildren(updated);
+    });
+    return () => es.close();
+  }, [sseUrl]);
 
   async function handleAdd(name: string, birthdate: string, note?: string) {
     const data = await storage.addChild(name, birthdate, note);

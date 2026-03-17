@@ -2,6 +2,20 @@ import { addChild, deleteChild, getAllChildren, updateChild } from "./database";
 
 const PORT = Number.parseInt(process.env.PORT || "3000");
 
+const sseClients = new Set<ReadableStreamDefaultController>();
+
+function broadcast(event: string, data: unknown) {
+  const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  const encoded = new TextEncoder().encode(message);
+  for (const client of sseClients) {
+    try {
+      client.enqueue(encoded);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+}
+
 const buildResult = await Bun.build({
   entrypoints: ["./src/client/main.tsx"],
   outdir: "./dist",
@@ -60,6 +74,26 @@ const server = Bun.serve({
       return new Response(Bun.file("./dist/main.js"));
     }
 
+    if (path === "/api/events" && req.method === "GET") {
+      let controller: ReadableStreamDefaultController;
+      const stream = new ReadableStream({
+        start(c) {
+          controller = c;
+          sseClients.add(controller);
+        },
+        cancel() {
+          sseClients.delete(controller);
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    }
+
     if (path === "/api/children" && req.method === "GET") {
       return json(getAllChildren());
     }
@@ -77,12 +111,14 @@ const server = Bun.serve({
         return json({ error: "Birthdate is required" }, 400);
       }
       const child = addChild(body.name.trim(), body.birthdate, body.note);
+      broadcast("birthday-added", child);
       return json(child, 201);
     }
 
     const deleteMatch = path.match(/^\/api\/children\/(\d+)$/);
     if (deleteMatch && req.method === "DELETE") {
       deleteChild(Number(deleteMatch[1]));
+      broadcast("birthday-deleted", { id: deleteMatch[1] });
       return new Response(null, { status: 204 });
     }
 
@@ -100,7 +136,9 @@ const server = Bun.serve({
         return json({ error: "Birthdate is required" }, 400);
       }
       updateChild(Number(updateMatch[1]), body.name.trim(), body.birthdate, body.note);
-      return json(getAllChildren());
+      const updated = getAllChildren();
+      broadcast("birthday-updated", updated);
+      return json(updated);
     }
 
     return new Response("Not Found", { status: 404 });
