@@ -182,7 +182,7 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
             cursor: "pointer",
           }}
         >
-          {showAdd ? "Cancel" : "+ Add Child"}
+          {showAdd ? "Cancel" : "+ Add Birthday"}
         </button>
       </div>
 

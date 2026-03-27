@@ -7,7 +7,7 @@ interface Props {
   submitLabel?: string;
 }
 
-export function AddBirthday({ onAdd, initial, onCancel, submitLabel = "Add Child" }: Props) {
+export function AddBirthday({ onAdd, initial, onCancel, submitLabel = "Add Birthday" }: Props) {
   const [name, setName] = useState(initial?.name ?? "");
   const [birthdate, setBirthdate] = useState(initial?.birthdate ?? "");
   const [note, setNote] = useState(initial?.note ?? "");
@@ -61,7 +61,7 @@ export function AddBirthday({ onAdd, initial, onCancel, submitLabel = "Add Child
       }}
     >
       <h2 style={{ fontSize: "1.1rem", color: "#eee", fontWeight: 600 }}>
-        {submitLabel === "Add Child" ? "Add a Child" : "Edit Child"}
+        {submitLabel === "Add Birthday" ? "Add a Birthday" : "Edit Birthday"}
       </h2>
 
       {error && (
