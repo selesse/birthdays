@@ -1,6 +1,11 @@
-import type { StorageAdapter, Child } from "./types";
+import type { Child, StorageAdapter } from "./types";
 
-type ServerChild = { id: number; name: string; birthdate: string; note: string | null };
+type ServerChild = {
+  id: number;
+  name: string;
+  birthdate: string;
+  note: string | null;
+};
 
 function normalize(c: ServerChild): Child {
   return { ...c, id: String(c.id) };
@@ -13,7 +18,11 @@ export class ApiAdapter implements StorageAdapter {
     return data.map(normalize);
   }
 
-  async addChild(name: string, birthdate: string, note?: string): Promise<Child[]> {
+  async addChild(
+    name: string,
+    birthdate: string,
+    note?: string,
+  ): Promise<Child[]> {
     await fetch("/api/children", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -26,7 +35,12 @@ export class ApiAdapter implements StorageAdapter {
     await fetch(`/api/children/${id}`, { method: "DELETE" });
   }
 
-  async updateChild(id: string, name: string, birthdate: string, note?: string): Promise<Child[]> {
+  async updateChild(
+    id: string,
+    name: string,
+    birthdate: string,
+    note?: string,
+  ): Promise<Child[]> {
     const res = await fetch(`/api/children/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

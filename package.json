@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "bun run src/server.ts",
     "build:static": "bun build src/client/main-static.tsx --outdir dist --entry-naming bundle.[ext] --minify && cp -r public/. dist/",
-    "lint": "biome check .",
-    "format": "biome format --write .",
-    "test": "bun test"
+    "lint": "biome check . --write"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.4.4",

@@ -1,4 +1,4 @@
-import type { StorageAdapter, Child } from "./types";
+import type { Child, StorageAdapter } from "./types";
 
 const STORAGE_KEY = "birthday_children";
 
@@ -24,9 +24,18 @@ export class LocalAdapter implements StorageAdapter {
     return this.sorted(this.load());
   }
 
-  async addChild(name: string, birthdate: string, note?: string): Promise<Child[]> {
+  async addChild(
+    name: string,
+    birthdate: string,
+    note?: string,
+  ): Promise<Child[]> {
     const children = this.load();
-    children.push({ id: crypto.randomUUID(), name, birthdate, note: note ?? null });
+    children.push({
+      id: crypto.randomUUID(),
+      name,
+      birthdate,
+      note: note ?? null,
+    });
     this.save(children);
     return this.sorted(children);
   }
@@ -36,7 +45,12 @@ export class LocalAdapter implements StorageAdapter {
     this.save(children);
   }
 
-  async updateChild(id: string, name: string, birthdate: string, note?: string): Promise<Child[]> {
+  async updateChild(
+    id: string,
+    name: string,
+    birthdate: string,
+    note?: string,
+  ): Promise<Child[]> {
     const children = this.load().map((c) =>
       c.id === id ? { id, name, birthdate, note: note ?? null } : c,
     );

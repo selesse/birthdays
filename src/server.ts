@@ -33,7 +33,7 @@ if (!buildResult.success) {
 
 const jsOutput = buildResult.outputs.find((o) => o.kind === "entry-point");
 const cssOutput = buildResult.outputs.find((o) => o.path.endsWith(".css"));
-const jsPath = `/${jsOutput!.path.split("/dist/")[1]}`;
+const jsPath = `/${jsOutput?.path.split("/dist/")[1]}`;
 const cssPath = cssOutput ? `/${cssOutput.path.split("/dist/")[1]}` : null;
 
 const HTML = `<!DOCTYPE html>
@@ -166,7 +166,12 @@ const server = Bun.serve({
       if (!body.birthdate) {
         return json({ error: "Birthdate is required" }, 400);
       }
-      updateChild(Number(updateMatch[1]), body.name.trim(), body.birthdate, body.note);
+      updateChild(
+        Number(updateMatch[1]),
+        body.name.trim(),
+        body.birthdate,
+        body.note,
+      );
       const updated = getAllChildren();
       broadcast("birthday-updated", updated);
       return json(updated);

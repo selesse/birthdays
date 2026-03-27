@@ -7,7 +7,12 @@ interface Props {
   submitLabel?: string;
 }
 
-export function AddBirthday({ onAdd, initial, onCancel, submitLabel = "Add Birthday" }: Props) {
+export function AddBirthday({
+  onAdd,
+  initial,
+  onCancel,
+  submitLabel = "Add Birthday",
+}: Props) {
   const [name, setName] = useState(initial?.name ?? "");
   const [birthdate, setBirthdate] = useState(initial?.birthdate ?? "");
   const [note, setNote] = useState(initial?.note ?? "");
@@ -87,7 +92,6 @@ export function AddBirthday({ onAdd, initial, onCancel, submitLabel = "Add Birth
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Emma"
-          autoFocus
         />
       </div>
 

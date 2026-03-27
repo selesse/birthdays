@@ -20,7 +20,11 @@ export interface Child {
   note: string | null;
 }
 
-export function addChild(name: string, birthdate: string, note?: string): Child {
+export function addChild(
+  name: string,
+  birthdate: string,
+  note?: string,
+): Child {
   const stmt = db.prepare(
     "INSERT INTO children (name, birthdate, note) VALUES (?, ?, ?) RETURNING *",
   );
@@ -43,8 +47,10 @@ export function updateChild(
   birthdate: string,
   note?: string,
 ): void {
-  db.run(
-    "UPDATE children SET name = ?, birthdate = ?, note = ? WHERE id = ?",
-    [name, birthdate, note ?? null, id],
-  );
+  db.run("UPDATE children SET name = ?, birthdate = ?, note = ? WHERE id = ?", [
+    name,
+    birthdate,
+    note ?? null,
+    id,
+  ]);
 }

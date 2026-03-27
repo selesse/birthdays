@@ -1,8 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
+import type { Child, StorageAdapter } from "../storage/types";
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
-import type { StorageAdapter, Child } from "../storage/types";
 
 export type { Child };
 
@@ -16,15 +16,22 @@ export interface AgeInfo {
   turningAge: number;
 }
 
-export function computeAge(birthdate: string, today: Temporal.PlainDate): AgeInfo {
+export function computeAge(
+  birthdate: string,
+  today: Temporal.PlainDate,
+): AgeInfo {
   const birth = Temporal.PlainDate.from(birthdate);
 
   const totalDays = birth.until(today, { largestUnit: "days" }).days;
   const age = birth.until(today, { largestUnit: "years" });
   const years = age.years;
-  const remaining = birth.add({ years }).until(today, { largestUnit: "months" });
+  const remaining = birth
+    .add({ years })
+    .until(today, { largestUnit: "months" });
   const months = remaining.months;
-  const remainingDays = birth.add({ years, months }).until(today, { largestUnit: "days" });
+  const remainingDays = birth
+    .add({ years, months })
+    .until(today, { largestUnit: "days" });
   const days = remainingDays.days;
 
   // Next birthday this year or next
@@ -55,7 +62,10 @@ export function computeAge(birthdate: string, today: Temporal.PlainDate): AgeInf
   };
 }
 
-export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: string }) {
+export function App({
+  storage,
+  sseUrl,
+}: { storage: StorageAdapter; sseUrl?: string }) {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -104,7 +114,12 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
     setChildren((prev) => prev.filter((c) => c.id !== id));
   }
 
-  async function handleEdit(id: string, name: string, birthdate: string, note?: string) {
+  async function handleEdit(
+    id: string,
+    name: string,
+    birthdate: string,
+    note?: string,
+  ) {
     const data = await storage.updateChild(id, name, birthdate, note);
     setChildren(data);
   }
@@ -159,23 +174,31 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img src="icon.png" alt="" width={40} height={40} style={{ borderRadius: 10 }} />
+          <img
+            src="icon.png"
+            alt=""
+            width={40}
+            height={40}
+            style={{ borderRadius: 10 }}
+          />
           <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#eee" }}>
-            Birthday Tracker
-          </h1>
-          <p style={{ color: "#666", marginTop: 4, fontSize: "0.9rem" }}>
-            {children.length === 0
-              ? "No children added yet"
-              : `${children.length} ${children.length === 1 ? "child" : "children"}`}
-          </p>
+            <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#eee" }}>
+              Birthday Tracker
+            </h1>
+            <p style={{ color: "#666", marginTop: 4, fontSize: "0.9rem" }}>
+              {children.length === 0
+                ? "No children added yet"
+                : `${children.length} ${children.length === 1 ? "child" : "children"}`}
+            </p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => setShowAdd(!showAdd)}
           style={{
-            background: showAdd ? "#2d2d44" : "linear-gradient(135deg, #a29bfe, #6c5ce7)",
+            background: showAdd
+              ? "#2d2d44"
+              : "linear-gradient(135deg, #a29bfe, #6c5ce7)",
             color: "#fff",
             border: "none",
             borderRadius: 10,
@@ -199,7 +222,14 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
       {/* Birthdays today */}
       {birthdayToday.length > 0 && (
         <div style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: "1rem", color: "#fdcb6e", fontWeight: 600, marginBottom: 12 }}>
+          <h2
+            style={{
+              fontSize: "1rem",
+              color: "#fdcb6e",
+              fontWeight: 600,
+              marginBottom: 12,
+            }}
+          >
             Today's Birthdays
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -219,7 +249,14 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
       {/* Upcoming in 30 days */}
       {upcoming.length > 0 && (
         <div style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: "1rem", color: "#00cec9", fontWeight: 600, marginBottom: 12 }}>
+          <h2
+            style={{
+              fontSize: "1rem",
+              color: "#00cec9",
+              fontWeight: 600,
+              marginBottom: 12,
+            }}
+          >
             Coming Up (Next 30 Days)
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -252,7 +289,14 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
         </div>
       ) : (
         <div>
-          <h2 style={{ fontSize: "1rem", color: "#888", fontWeight: 600, marginBottom: 12 }}>
+          <h2
+            style={{
+              fontSize: "1rem",
+              color: "#888",
+              fontWeight: 600,
+              marginBottom: 12,
+            }}
+          >
             All Children
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>

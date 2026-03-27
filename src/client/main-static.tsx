@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
-import { App } from "./App";
 import { LocalAdapter } from "../storage/LocalAdapter";
+import { App } from "./App";
 
 const btnStyle: React.CSSProperties = {
   background: "#1a1a2e",
@@ -47,7 +47,13 @@ function ExportImport() {
 
   return (
     <div
-      style={{ maxWidth: 860, margin: "0 auto", padding: "0 16px 24px", display: "flex", gap: 8 }}
+      style={{
+        maxWidth: 860,
+        margin: "0 auto",
+        padding: "0 16px 24px",
+        display: "flex",
+        gap: 8,
+      }}
     >
       <button onClick={handleExport} style={btnStyle}>
         Export JSON
