@@ -158,7 +158,9 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
           gap: 12,
         }}
       >
-        <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img src="icon.png" alt="" width={40} height={40} style={{ borderRadius: 10 }} />
+          <div>
           <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#eee" }}>
             Birthday Tracker
           </h1>
@@ -167,6 +169,7 @@ export function App({ storage, sseUrl }: { storage: StorageAdapter; sseUrl?: str
               ? "No children added yet"
               : `${children.length} ${children.length === 1 ? "child" : "children"}`}
           </p>
+          </div>
         </div>
         <button
           type="button"

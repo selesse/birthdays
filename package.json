@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts",
-    "build:static": "bun build src/client/main-static.tsx --outfile dist/bundle.js --minify && cp public/index.html dist/",
+    "build:static": "bun build src/client/main-static.tsx --outfile dist/bundle.js --minify && cp -r public/. dist/",
     "lint": "biome check .",
     "format": "biome format --write ."
   },

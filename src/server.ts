@@ -42,6 +42,9 @@ const HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Birthday Tracker</title>
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   ${cssPath ? `<link rel="stylesheet" href="${cssPath}">` : ""}
 </head>
 <body>
@@ -83,6 +86,21 @@ const server = Bun.serve({
         headers: {
           "Content-Type": "text/css",
           "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
+
+    const staticFiles: Record<string, string> = {
+      "/favicon.png": "image/png",
+      "/favicon.ico": "image/x-icon",
+      "/apple-touch-icon.png": "image/png",
+      "/icon.png": "image/png",
+    };
+    if (path in staticFiles) {
+      return new Response(Bun.file(`./public${path}`), {
+        headers: {
+          "Content-Type": staticFiles[path],
+          "Cache-Control": "public, max-age=86400",
         },
       });
     }
