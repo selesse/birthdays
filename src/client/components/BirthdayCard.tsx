@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { AgeInfo, Child } from "../App";
 import { AddBirthday } from "./AddBirthday";
+import "./BirthdayCard.css";
 
 interface Props {
   child: Child;
@@ -21,19 +22,24 @@ function ageBadge(age: AgeInfo): string {
 }
 
 function nextBirthdayLabel(age: AgeInfo): { text: string; color: string } {
-  if (age.daysUntilNext === 0) {
+  if (age.daysUntilNext === 0)
     return { text: `Turning ${age.turningAge} today!`, color: "#fdcb6e" };
-  }
-  if (age.daysUntilNext === 1) {
+  if (age.daysUntilNext === 1)
     return { text: `Turning ${age.turningAge} tomorrow`, color: "#fd79a8" };
-  }
-  if (age.daysUntilNext <= 7) {
-    return { text: `Turning ${age.turningAge} in ${age.daysUntilNext}d`, color: "#fd79a8" };
-  }
-  if (age.daysUntilNext <= 30) {
-    return { text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`, color: "#00cec9" };
-  }
-  return { text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`, color: "#444" };
+  if (age.daysUntilNext <= 7)
+    return {
+      text: `Turning ${age.turningAge} in ${age.daysUntilNext}d`,
+      color: "#fd79a8",
+    };
+  if (age.daysUntilNext <= 30)
+    return {
+      text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
+      color: "#00cec9",
+    };
+  return {
+    text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
+    color: "#4a4a6a",
+  };
 }
 
 function formatBirthdate(iso: string): string {
@@ -45,17 +51,79 @@ function formatBirthdate(iso: string): string {
   });
 }
 
+const ACTION_WIDTH = 120;
+
 export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(true);
+
+  const touchRef = useRef<{
+    startX: number;
+    startY: number;
+    baseOffset: number;
+    isHoriz: boolean | null;
+  } | null>(null);
 
   const { text: nextLabel, color: nextColor } = nextBirthdayLabel(age);
   const isToday = age.daysUntilNext === 0;
+  const isSwiped = offset < -ACTION_WIDTH * 0.5;
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchRef.current = {
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      baseOffset: offset,
+      isHoriz: null,
+    };
+    setIsAnimating(false);
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const t = touchRef.current;
+    if (!t) return;
+    const dx = e.touches[0].clientX - t.startX;
+    const dy = e.touches[0].clientY - t.startY;
+
+    if (t.isHoriz === null) {
+      if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+      t.isHoriz = Math.abs(dx) > Math.abs(dy);
+    }
+    if (!t.isHoriz) return;
+
+    e.preventDefault();
+    setOffset(Math.max(-ACTION_WIDTH, Math.min(0, t.baseOffset + dx)));
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const t = touchRef.current;
+    touchRef.current = null;
+    setIsAnimating(true);
+
+    if (!t?.isHoriz) return; // tap — onClick handles it
+
+    const dx = e.changedTouches[0].clientX - t.startX;
+    const wasSwiped = t.baseOffset < -ACTION_WIDTH * 0.5;
+
+    if (!wasSwiped && dx < -ACTION_WIDTH * 0.35) {
+      setOffset(-ACTION_WIDTH);
+    } else if (wasSwiped && dx > ACTION_WIDTH * 0.35) {
+      setOffset(0);
+    } else {
+      setOffset(wasSwiped ? -ACTION_WIDTH : 0);
+    }
+  }
 
   if (editing) {
     return (
       <AddBirthday
-        initial={{ name: child.name, birthdate: child.birthdate, note: child.note }}
+        initial={{
+          name: child.name,
+          birthdate: child.birthdate,
+          note: child.note,
+        }}
         onAdd={(name, birthdate, note) => {
           onEdit(child.id, name, birthdate, note);
           setEditing(false);
@@ -67,151 +135,148 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
   }
 
   return (
-    <div
-      style={{
-        background: isToday ? "linear-gradient(135deg, #2d2418 0%, #1a1a2e 100%)" : "#1a1a2e",
-        borderRadius: 10,
-        padding: "9px 14px",
-        border: isToday ? "1px solid #fdcb6e44" : "1px solid transparent",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        minWidth: 0,
-      }}
-    >
-      {/* Avatar */}
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          background: isToday
-            ? "linear-gradient(135deg, #fdcb6e, #e17055)"
-            : "linear-gradient(135deg, #a29bfe, #6c5ce7)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: isToday ? "1rem" : "0.85rem",
-          flexShrink: 0,
-          fontWeight: 700,
-          color: "#fff",
-        }}
-      >
-        {isToday ? "🎂" : child.name[0].toUpperCase()}
+    <div className="card-wrapper">
+      {/* Action buttons hidden behind the card, revealed by swiping left */}
+      <div className="card-actions-tray">
+        <button
+          type="button"
+          className="card-tray-edit"
+          onClick={() => {
+            setIsAnimating(true);
+            setOffset(0);
+            setEditing(true);
+          }}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          className="card-tray-delete"
+          onClick={() => {
+            setConfirmDelete(true);
+            setIsAnimating(true);
+            setOffset(0);
+          }}
+        >
+          Delete
+        </button>
       </div>
 
-      {/* Name */}
-      <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "#eee", whiteSpace: "nowrap" }}>
-        {child.name}
-      </span>
-
-      {/* Age badge */}
-      <span
+      {/* Card — slides left on swipe to reveal actions */}
+      <div
+        className={`card-slide${isToday ? " card-slide--today" : ""}`}
         style={{
-          background: "#0f0f1a",
-          color: "#a29bfe",
-          borderRadius: 5,
-          padding: "2px 7px",
-          fontSize: "0.75rem",
-          fontWeight: 600,
-          whiteSpace: "nowrap",
-          flexShrink: 0,
+          transform: `translateX(${offset}px)`,
+          transition: isAnimating ? "transform 0.2s ease" : "none",
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onClick={() => {
+          if (isSwiped) {
+            setIsAnimating(true);
+            setOffset(0);
+            return;
+          }
+          if (child.note && !confirmDelete) setExpanded((v) => !v);
         }}
       >
-        {ageBadge(age)}
-      </span>
+        {/* Main row */}
+        <div
+          className="card-main-row"
+          style={{ cursor: child.note ? "pointer" : "default" }}
+        >
+          {/* Avatar with age badge overlaid */}
+          <div className="card-avatar-wrap">
+            <div
+              className={`card-avatar${isToday ? " card-avatar--today" : ""}`}
+            >
+              {isToday ? "🎂" : child.name[0].toUpperCase()}
+            </div>
+            <div className="card-age-badge">{ageBadge(age)}</div>
+          </div>
 
-      {/* Birthdate + note */}
-      <span style={{ color: "#3d3d55", fontSize: "0.78rem", whiteSpace: "nowrap" }}>
-        {formatBirthdate(child.birthdate)}
-        {child.note && <> · {child.note}</>}
-      </span>
+          {/* Name + date */}
+          <div className="card-name-block">
+            <div className="card-name-row">
+              <span className="card-name">{child.name}</span>
+              {child.note && (
+                <span className="card-chevron">{expanded ? "▲" : "▼"}</span>
+              )}
+            </div>
+            <div className="card-birthdate">
+              {formatBirthdate(child.birthdate)}
+            </div>
+          </div>
 
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
+          {/* Right side: next birthday pill + desktop buttons */}
+          <div className="card-right">
+            <span
+              className="card-next-pill"
+              style={{
+                color: nextColor,
+                background:
+                  age.daysUntilNext <= 30 ? `${nextColor}1a` : "#ffffff08",
+              }}
+            >
+              {nextLabel}
+            </span>
 
-      {/* Next birthday */}
-      <span
-        style={{
-          color: nextColor,
-          fontSize: "0.8rem",
-          fontWeight: 500,
-          whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}
-      >
-        {nextLabel}
-      </span>
+            {/* Desktop-only action buttons (hidden on touch devices via CSS) */}
+            {!confirmDelete && (
+              <div className="card-actions">
+                <button
+                  type="button"
+                  className="card-desktop-edit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditing(true);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="card-desktop-delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDelete(true);
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
-        {confirmDelete ? (
-          <>
+        {/* Expanded note */}
+        {expanded && child.note && (
+          <div className="card-note">{child.note}</div>
+        )}
+
+        {/* Delete confirm — inline banner, works for both swipe (mobile) and button (desktop) */}
+        {confirmDelete && (
+          <div
+            className="card-delete-confirm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="card-delete-label">Delete {child.name}?</span>
             <button
               type="button"
+              className="card-delete-btn"
               onClick={() => onDelete(child.id)}
-              style={{
-                background: "#c0392b",
-                color: "#fff",
-                border: "none",
-                borderRadius: 6,
-                padding: "5px 10px",
-                fontSize: "0.78rem",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Confirm
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(false)}
-              style={{
-                background: "#2d2d44",
-                color: "#aaa",
-                border: "none",
-                borderRadius: 6,
-                padding: "5px 8px",
-                fontSize: "0.78rem",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              style={{
-                background: "#2d2d44",
-                color: "#888",
-                border: "none",
-                borderRadius: 6,
-                padding: "5px 10px",
-                fontSize: "0.78rem",
-                cursor: "pointer",
-              }}
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(true)}
-              style={{
-                background: "#2d1a1a",
-                color: "#ff6b6b",
-                border: "none",
-                borderRadius: 6,
-                padding: "5px 10px",
-                fontSize: "0.78rem",
-                cursor: "pointer",
-              }}
             >
               Delete
             </button>
-          </>
+            <button
+              type="button"
+              className="card-cancel-btn"
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </button>
+          </div>
         )}
       </div>
     </div>

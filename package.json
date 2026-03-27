@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts",
-    "build:static": "bun build src/client/main-static.tsx --outfile dist/bundle.js --minify && cp -r public/. dist/",
+    "build:static": "bun build src/client/main-static.tsx --outdir dist --entry-naming bundle.[ext] --minify && cp -r public/. dist/",
     "lint": "biome check .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "test": "bun test"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.4.4",
