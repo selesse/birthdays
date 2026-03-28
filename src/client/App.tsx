@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Child, StorageAdapter } from "../storage/types";
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
+import { useSSE } from "./hooks/useSSE";
 
 export type { Child };
 
@@ -40,7 +41,7 @@ export function computeAge(
     month: birth.month,
     day: birth.day,
   });
-  if (Temporal.PlainDate.compare(nextBirthday, today) <= 0) {
+  if (Temporal.PlainDate.compare(nextBirthday, today) < 0) {
     nextBirthday = Temporal.PlainDate.from({
       year: today.year + 1,
       month: birth.month,
@@ -82,26 +83,7 @@ export function App({
     fetchChildren();
   }, []);
 
-  useEffect(() => {
-    if (!sseUrl) return;
-    const es = new EventSource(sseUrl);
-    es.addEventListener("birthday-added", (e) => {
-      const added = JSON.parse(e.data) as Child;
-      setChildren((prev) => {
-        if (prev.some((c) => c.id === added.id)) return prev;
-        return [...prev, added];
-      });
-    });
-    es.addEventListener("birthday-deleted", (e) => {
-      const { id } = JSON.parse(e.data) as { id: string };
-      setChildren((prev) => prev.filter((c) => c.id !== id));
-    });
-    es.addEventListener("birthday-updated", (e) => {
-      const updated = JSON.parse(e.data) as Child[];
-      setChildren(updated);
-    });
-    return () => es.close();
-  }, [sseUrl]);
+  useSSE(sseUrl, setChildren);
 
   async function handleAdd(name: string, birthdate: string, note?: string) {
     const data = await storage.addChild(name, birthdate, note);
