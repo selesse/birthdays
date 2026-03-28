@@ -24,7 +24,7 @@
 
 .card-tray-edit {
   background: #1e1e4a;
-  color: #a29bfe;
+  color: #b79fff;
 }
 
 .card-tray-delete {
@@ -36,7 +36,7 @@
 /* Sliding card face */
 .card-slide {
   border-radius: 10px;
-  background: #1a1a2e;
+  background: #1a1456;
   border: 1px solid transparent;
   user-select: none;
   -webkit-user-select: none;
@@ -71,7 +71,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  background: linear-gradient(135deg, #b79fff, #6c5ce7);
 }
 
 .card-avatar--today {
@@ -83,9 +83,9 @@
   position: absolute;
   bottom: -4px;
   right: -10px;
-  background: #0f0f1a;
+  background: #0a0538;
   border: 1.5px solid #2d2d5e;
-  color: #a29bfe;
+  color: #b79fff;
   border-radius: 8px;
   padding: 1px 5px;
   font-size: 0.62rem;
@@ -115,13 +115,13 @@
 }
 
 .card-chevron {
-  color: #444;
+  color: #6060a0;
   font-size: 0.65rem;
   flex-shrink: 0;
 }
 
 .card-birthdate {
-  color: #555;
+  color: #9898c0;
   font-size: 0.75rem;
   margin-top: 2px;
 }
@@ -163,7 +163,7 @@
 
 .card-desktop-edit {
   background: #2d2d44;
-  color: #888;
+  color: #b79fff;
 }
 
 .card-desktop-delete {
@@ -175,9 +175,9 @@
 .card-note {
   margin: 0 14px 10px;
   padding: 8px 10px;
-  background: #12122a;
+  background: #0a0538;
   border-radius: 8px;
-  color: #888;
+  color: #9898c0;
   font-size: 0.8rem;
   line-height: 1.5;
 }
@@ -192,7 +192,7 @@
 }
 
 .card-delete-label {
-  color: #888;
+  color: #9898c0;
   font-size: 0.8rem;
   flex: 1;
 }

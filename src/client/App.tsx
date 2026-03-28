@@ -114,7 +114,7 @@ export function App({
           alignItems: "center",
           justifyContent: "center",
           minHeight: "100vh",
-          color: "#888",
+          color: "#9898c0",
         }}
       >
         Loading...
@@ -167,7 +167,7 @@ export function App({
             <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#eee" }}>
               Birthday Tracker
             </h1>
-            <p style={{ color: "#666", marginTop: 4, fontSize: "0.9rem" }}>
+            <p style={{ color: "#9898c0", marginTop: 4, fontSize: "0.9rem" }}>
               {children.length === 0
                 ? "No children added yet"
                 : `${children.length} ${children.length === 1 ? "child" : "children"}`}
@@ -180,7 +180,7 @@ export function App({
           style={{
             background: showAdd
               ? "#2d2d44"
-              : "linear-gradient(135deg, #a29bfe, #6c5ce7)",
+              : "linear-gradient(135deg, #b79fff, #6c5ce7)",
             color: "#fff",
             border: "none",
             borderRadius: 10,
@@ -234,7 +234,7 @@ export function App({
           <h2
             style={{
               fontSize: "1rem",
-              color: "#00cec9",
+              color: "#f673b7",
               fontWeight: 600,
               marginBottom: 12,
             }}
@@ -261,7 +261,7 @@ export function App({
           style={{
             textAlign: "center",
             padding: "60px 20px",
-            color: "#555",
+            color: "#9898c0",
           }}
         >
           <div style={{ fontSize: "3rem", marginBottom: 16 }}>🎂</div>
@@ -274,7 +274,7 @@ export function App({
           <h2
             style={{
               fontSize: "1rem",
-              color: "#888",
+              color: "#b79fff",
               fontWeight: 600,
               marginBottom: 12,
             }}

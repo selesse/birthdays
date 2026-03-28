@@ -25,20 +25,20 @@ function nextBirthdayLabel(age: AgeInfo): { text: string; color: string } {
   if (age.daysUntilNext === 0)
     return { text: `Turning ${age.turningAge} today!`, color: "#fdcb6e" };
   if (age.daysUntilNext === 1)
-    return { text: `Turning ${age.turningAge} tomorrow`, color: "#fd79a8" };
+    return { text: `Turning ${age.turningAge} tomorrow`, color: "#f673b7" };
   if (age.daysUntilNext <= 7)
     return {
       text: `Turning ${age.turningAge} in ${age.daysUntilNext}d`,
-      color: "#fd79a8",
+      color: "#f673b7",
     };
   if (age.daysUntilNext <= 30)
     return {
       text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
-      color: "#00cec9",
+      color: "#f673b7",
     };
   return {
     text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
-    color: "#4a4a6a",
+    color: "#7fb6ff",
   };
 }
 

@@ -34,7 +34,7 @@ export function AddBirthday({
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
-    background: "#0f0f1a",
+    background: "#0a0538",
     border: "1px solid #2d2d44",
     borderRadius: 8,
     padding: "10px 14px",
@@ -45,7 +45,7 @@ export function AddBirthday({
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    color: "#888",
+    color: "#9898c0",
     fontSize: "0.8rem",
     fontWeight: 600,
     marginBottom: 6,
@@ -57,7 +57,7 @@ export function AddBirthday({
     <form
       onSubmit={handleSubmit}
       style={{
-        background: "#1a1a2e",
+        background: "#1a1456",
         borderRadius: 16,
         padding: "24px 28px",
         display: "flex",
@@ -122,7 +122,7 @@ export function AddBirthday({
           type="submit"
           style={{
             flex: 1,
-            background: "linear-gradient(135deg, #a29bfe, #6c5ce7)",
+            background: "linear-gradient(135deg, #b79fff, #6c5ce7)",
             color: "#fff",
             border: "none",
             borderRadius: 10,
