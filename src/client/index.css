@@ -1,3 +1,57 @@
+:root {
+  /* Surfaces */
+  --color-bg: #0a0538;
+  --color-bg-card: #1a1456;
+  --color-bg-elevated: #1e1e4a;
+  --color-bg-subtle: #2d2d44;
+  --color-bg-danger: #2d1a1a;
+  --color-bg-danger-deep: #4a1e1e;
+  --color-bg-overlay: #1a1a2e;
+  --color-bg-today: #2d2418;
+
+  /* Borders */
+  --color-border-subtle: #2d2d5e;
+  --color-border-muted: #2a2a3e;
+  --color-border-input: #2d2d44;
+  --color-border-today: #fdcb6e44;
+
+  /* Text */
+  --color-text: #eee;
+  --color-text-muted: #9898c0;
+  --color-text-dim: #aaa;
+  --color-text-chevron: #6060a0;
+  --color-text-white: #fff;
+
+  /* Accent / brand */
+  --color-primary: #b79fff;
+  --color-primary-dark: #6c5ce7;
+  --color-secondary: #f673b7;
+  --color-tertiary: #7fb6ff;
+  --color-accent-gold: #fdcb6e;
+  --color-accent-orange: #e17055;
+
+  /* Semantic */
+  --color-danger: #ff6b6b;
+  --color-danger-action: #c0392b;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
+  --gradient-avatar-today: linear-gradient(
+    135deg,
+    var(--color-accent-gold),
+    var(--color-accent-orange)
+  );
+  --gradient-card-today: linear-gradient(
+    135deg,
+    var(--color-bg-today) 0%,
+    var(--color-bg-overlay) 100%
+  );
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,11 +60,204 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #0a0538;
-  color: #eee;
+  background: var(--color-bg);
+  color: var(--color-text);
   min-height: 100vh;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* ── App layout ─────────────────────────────────────── */
+
+.app-root {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--color-text-muted);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-icon {
+  border-radius: 10px;
+}
+
+.app-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.app-subtitle {
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+.app-btn-add {
+  background: var(--gradient-primary);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-btn-add--cancel {
+  background: var(--color-bg-subtle);
+}
+
+.app-section {
+  margin-bottom: 32px;
+}
+
+.app-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.app-section-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.app-section-heading--today {
+  color: var(--color-accent-gold);
+}
+.app-section-heading--upcoming {
+  color: var(--color-secondary);
+}
+.app-section-heading--all {
+  color: var(--color-primary);
+}
+
+.app-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-muted);
+}
+
+.app-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+/* ── AddBirthday form ───────────────────────────────── */
+
+.form-add {
+  background: var(--color-bg-card);
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-add-title {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.form-add-error {
+  background: var(--color-bg-danger);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 27%, transparent);
+  color: var(--color-danger);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.form-add-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-add-input {
+  width: 100%;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-input);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.form-add-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.form-add-btn-submit {
+  flex: 1;
+  background: var(--gradient-primary);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Static export/import toolbar ──────────────────────── */
+
+.toolbar-btn {
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.toolbar-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.form-add-btn-cancel {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-dim);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
 }

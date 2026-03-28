@@ -107,19 +107,7 @@ export function App({
   }
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          color: "#9898c0",
-        }}
-      >
-        Loading...
-      </div>
-    );
+    return <div className="app-loading">Loading...</div>;
   }
 
   // Sort: birthdays today first, then upcoming soonest, then by name
@@ -143,31 +131,20 @@ export function App({
   });
 
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto", padding: "32px 16px" }}>
+    <div className="app-root">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 32,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="app-header">
+        <div className="app-header-left">
           <img
             src="icon.png"
             alt=""
             width={40}
             height={40}
-            style={{ borderRadius: 10 }}
+            className="app-icon"
           />
           <div>
-            <h1 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#eee" }}>
-              Birthday Tracker
-            </h1>
-            <p style={{ color: "#9898c0", marginTop: 4, fontSize: "0.9rem" }}>
+            <h1 className="app-title">Birthday Tracker</h1>
+            <p className="app-subtitle">
               {children.length === 0
                 ? "No children added yet"
                 : `${children.length} ${children.length === 1 ? "child" : "children"}`}
@@ -177,18 +154,7 @@ export function App({
         <button
           type="button"
           onClick={() => setShowAdd(!showAdd)}
-          style={{
-            background: showAdd
-              ? "#2d2d44"
-              : "linear-gradient(135deg, #b79fff, #6c5ce7)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 10,
-            padding: "10px 20px",
-            fontSize: "0.95rem",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
+          className={`app-btn-add${showAdd ? " app-btn-add--cancel" : ""}`}
         >
           {showAdd ? "Cancel" : "+ Add Birthday"}
         </button>
@@ -196,25 +162,18 @@ export function App({
 
       {/* Add form */}
       {showAdd && (
-        <div style={{ marginBottom: 32 }}>
+        <div className="app-section">
           <AddBirthday onAdd={handleAdd} />
         </div>
       )}
 
       {/* Birthdays today */}
       {birthdayToday.length > 0 && (
-        <div style={{ marginBottom: 32 }}>
-          <h2
-            style={{
-              fontSize: "1rem",
-              color: "#fdcb6e",
-              fontWeight: 600,
-              marginBottom: 12,
-            }}
-          >
+        <div className="app-section">
+          <h2 className="app-section-heading app-section-heading--today">
             Today's Birthdays
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div className="app-section-list">
             {birthdayToday.map((child) => (
               <BirthdayCard
                 key={child.id}
@@ -230,18 +189,11 @@ export function App({
 
       {/* Upcoming in 30 days */}
       {upcoming.length > 0 && (
-        <div style={{ marginBottom: 32 }}>
-          <h2
-            style={{
-              fontSize: "1rem",
-              color: "#f673b7",
-              fontWeight: 600,
-              marginBottom: 12,
-            }}
-          >
+        <div className="app-section">
+          <h2 className="app-section-heading app-section-heading--upcoming">
             Coming Up (Next 30 Days)
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div className="app-section-list">
             {upcoming.map((child) => (
               <BirthdayCard
                 key={child.id}
@@ -257,31 +209,16 @@ export function App({
 
       {/* All children */}
       {children.length === 0 ? (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "60px 20px",
-            color: "#9898c0",
-          }}
-        >
-          <div style={{ fontSize: "3rem", marginBottom: 16 }}>🎂</div>
-          <p style={{ fontSize: "1rem" }}>
-            Add a child to start tracking birthdays
-          </p>
+        <div className="app-empty">
+          <div className="app-empty-icon">🎂</div>
+          <p>Add a child to start tracking birthdays</p>
         </div>
       ) : (
-        <div>
-          <h2
-            style={{
-              fontSize: "1rem",
-              color: "#b79fff",
-              fontWeight: 600,
-              marginBottom: 12,
-            }}
-          >
+        <div className="app-section">
+          <h2 className="app-section-heading app-section-heading--all">
             All Children
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div className="app-section-list">
             {sorted.map((child) => (
               <BirthdayCard
                 key={child.id}

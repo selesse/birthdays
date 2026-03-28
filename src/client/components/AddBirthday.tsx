@@ -32,62 +32,18 @@ export function AddBirthday({
     onAdd(name.trim(), birthdate, note.trim() || undefined);
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    background: "#0a0538",
-    border: "1px solid #2d2d44",
-    borderRadius: 8,
-    padding: "10px 14px",
-    color: "#eee",
-    fontSize: "0.95rem",
-    outline: "none",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    color: "#9898c0",
-    fontSize: "0.8rem",
-    fontWeight: 600,
-    marginBottom: 6,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        background: "#1a1456",
-        borderRadius: 16,
-        padding: "24px 28px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
-      }}
-    >
-      <h2 style={{ fontSize: "1.1rem", color: "#eee", fontWeight: 600 }}>
+    <form onSubmit={handleSubmit} className="form-add">
+      <h2 className="form-add-title">
         {submitLabel === "Add Birthday" ? "Add a Birthday" : "Edit Birthday"}
       </h2>
 
-      {error && (
-        <div
-          style={{
-            background: "#2d1a1a",
-            border: "1px solid #ff6b6b44",
-            color: "#ff6b6b",
-            borderRadius: 8,
-            padding: "10px 14px",
-            fontSize: "0.9rem",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="form-add-error">{error}</div>}
 
       <div>
-        <label style={labelStyle}>Name</label>
+        <label className="form-add-label">Name</label>
         <input
-          style={inputStyle}
+          className="form-add-input"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -96,9 +52,9 @@ export function AddBirthday({
       </div>
 
       <div>
-        <label style={labelStyle}>Birthday</label>
+        <label className="form-add-label">Birthday</label>
         <input
-          style={inputStyle}
+          className="form-add-input"
           type="date"
           value={birthdate}
           onChange={(e) => setBirthdate(e.target.value)}
@@ -107,9 +63,9 @@ export function AddBirthday({
       </div>
 
       <div>
-        <label style={labelStyle}>Note (optional)</label>
+        <label className="form-add-label">Note (optional)</label>
         <input
-          style={inputStyle}
+          className="form-add-input"
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -117,36 +73,15 @@ export function AddBirthday({
         />
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
-        <button
-          type="submit"
-          style={{
-            flex: 1,
-            background: "linear-gradient(135deg, #b79fff, #6c5ce7)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 10,
-            padding: "12px",
-            fontSize: "0.95rem",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
+      <div className="form-add-actions">
+        <button type="submit" className="form-add-btn-submit">
           {submitLabel}
         </button>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            style={{
-              background: "#2d2d44",
-              color: "#aaa",
-              border: "none",
-              borderRadius: 10,
-              padding: "12px 18px",
-              fontSize: "0.95rem",
-              cursor: "pointer",
-            }}
+            className="form-add-btn-cancel"
           >
             Cancel
           </button>

@@ -23,28 +23,28 @@
 }
 
 .card-tray-edit {
-  background: #1e1e4a;
-  color: #b79fff;
+  background: var(--color-bg-elevated);
+  color: var(--color-primary);
 }
 
 .card-tray-delete {
-  background: #4a1e1e;
-  color: #ff6b6b;
+  background: var(--color-bg-danger-deep);
+  color: var(--color-danger);
   border-radius: 0 10px 10px 0;
 }
 
 /* Sliding card face */
 .card-slide {
   border-radius: 10px;
-  background: #1a1456;
+  background: var(--color-bg-card);
   border: 1px solid transparent;
   user-select: none;
   -webkit-user-select: none;
 }
 
 .card-slide--today {
-  background: linear-gradient(135deg, #2d2418 0%, #1a1a2e 100%);
-  border-color: #fdcb6e44;
+  background: var(--gradient-card-today);
+  border-color: var(--color-border-today);
 }
 
 /* Main content row */
@@ -70,12 +70,12 @@
   justify-content: center;
   font-size: 1rem;
   font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #b79fff, #6c5ce7);
+  color: var(--color-text-white);
+  background: var(--gradient-primary);
 }
 
 .card-avatar--today {
-  background: linear-gradient(135deg, #fdcb6e, #e17055);
+  background: var(--gradient-avatar-today);
   font-size: 1.1rem;
 }
 
@@ -83,9 +83,9 @@
   position: absolute;
   bottom: -4px;
   right: -10px;
-  background: #0a0538;
-  border: 1.5px solid #2d2d5e;
-  color: #b79fff;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border-subtle);
+  color: var(--color-primary);
   border-radius: 8px;
   padding: 1px 5px;
   font-size: 0.62rem;
@@ -108,20 +108,20 @@
 .card-name {
   font-weight: 700;
   font-size: 0.95rem;
-  color: #eee;
+  color: var(--color-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .card-chevron {
-  color: #6060a0;
+  color: var(--color-text-chevron);
   font-size: 0.65rem;
   flex-shrink: 0;
 }
 
 .card-birthdate {
-  color: #9898c0;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
   margin-top: 2px;
 }
@@ -139,6 +139,21 @@
   border-radius: 20px;
   padding: 3px 8px;
   white-space: nowrap;
+}
+
+.card-next-pill.pill--today {
+  color: var(--color-accent-gold);
+  background: color-mix(in srgb, var(--color-accent-gold) 10%, transparent);
+}
+
+.card-next-pill.pill--soon {
+  color: var(--color-secondary);
+  background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+}
+
+.card-next-pill.pill--future {
+  color: var(--color-tertiary);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* Desktop-only action buttons */
@@ -162,22 +177,22 @@
 }
 
 .card-desktop-edit {
-  background: #2d2d44;
-  color: #b79fff;
+  background: var(--color-bg-subtle);
+  color: var(--color-primary);
 }
 
 .card-desktop-delete {
-  background: #2d1a1a;
-  color: #ff6b6b;
+  background: var(--color-bg-danger);
+  color: var(--color-danger);
 }
 
 /* Expanded note */
 .card-note {
   margin: 0 14px 10px;
   padding: 8px 10px;
-  background: #0a0538;
+  background: var(--color-bg);
   border-radius: 8px;
-  color: #9898c0;
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   line-height: 1.5;
 }
@@ -188,18 +203,18 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px 10px;
-  border-top: 1px solid #2a2a3e;
+  border-top: 1px solid var(--color-border-muted);
 }
 
 .card-delete-label {
-  color: #9898c0;
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   flex: 1;
 }
 
 .card-delete-btn {
-  background: #c0392b;
-  color: #fff;
+  background: var(--color-danger-action);
+  color: var(--color-text-white);
   border: none;
   border-radius: 6px;
   padding: 5px 12px;
@@ -209,8 +224,8 @@
 }
 
 .card-cancel-btn {
-  background: #2d2d44;
-  color: #aaa;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-dim);
   border: none;
   border-radius: 6px;
   padding: 5px 10px;

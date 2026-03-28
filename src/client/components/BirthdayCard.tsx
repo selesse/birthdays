@@ -21,24 +21,30 @@ function ageBadge(age: AgeInfo): string {
   return age.months > 0 ? `${age.years}y ${age.months}mo` : `${age.years}y`;
 }
 
-function nextBirthdayLabel(age: AgeInfo): { text: string; color: string } {
+function nextBirthdayLabel(age: AgeInfo): { text: string; modifier: string } {
   if (age.daysUntilNext === 0)
-    return { text: `Turning ${age.turningAge} today!`, color: "#fdcb6e" };
+    return {
+      text: `Turning ${age.turningAge} today!`,
+      modifier: "pill--today",
+    };
   if (age.daysUntilNext === 1)
-    return { text: `Turning ${age.turningAge} tomorrow`, color: "#f673b7" };
+    return {
+      text: `Turning ${age.turningAge} tomorrow`,
+      modifier: "pill--soon",
+    };
   if (age.daysUntilNext <= 7)
     return {
       text: `Turning ${age.turningAge} in ${age.daysUntilNext}d`,
-      color: "#f673b7",
+      modifier: "pill--soon",
     };
   if (age.daysUntilNext <= 30)
     return {
       text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
-      color: "#f673b7",
+      modifier: "pill--soon",
     };
   return {
     text: `Turns ${age.turningAge} in ${age.daysUntilNext}d`,
-    color: "#7fb6ff",
+    modifier: "pill--future",
   };
 }
 
@@ -67,7 +73,7 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
     isHoriz: boolean | null;
   } | null>(null);
 
-  const { text: nextLabel, color: nextColor } = nextBirthdayLabel(age);
+  const { text: nextLabel, modifier: pillModifier } = nextBirthdayLabel(age);
   const isToday = age.daysUntilNext === 0;
   const isSwiped = offset < -ACTION_WIDTH * 0.5;
 
@@ -211,14 +217,7 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
 
           {/* Right side: next birthday pill + desktop buttons */}
           <div className="card-right">
-            <span
-              className="card-next-pill"
-              style={{
-                color: nextColor,
-                background:
-                  age.daysUntilNext <= 30 ? `${nextColor}1a` : "#ffffff08",
-              }}
-            >
+            <span className={`card-next-pill ${pillModifier}`}>
               {nextLabel}
             </span>
 

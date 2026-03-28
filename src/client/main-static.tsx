@@ -1,16 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { LocalAdapter } from "../storage/LocalAdapter";
 import { App } from "./App";
-
-const btnStyle: React.CSSProperties = {
-  background: "#1a1a2e",
-  color: "#888",
-  border: "1px solid #2d3436",
-  borderRadius: 6,
-  padding: "6px 14px",
-  fontSize: "0.8rem",
-  cursor: "pointer",
-};
+import "./index.css";
 
 const adapter = new LocalAdapter();
 
@@ -46,19 +37,11 @@ function ExportImport() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 860,
-        margin: "0 auto",
-        padding: "0 16px 24px",
-        display: "flex",
-        gap: 8,
-      }}
-    >
-      <button onClick={handleExport} style={btnStyle}>
+    <div className="toolbar-wrap">
+      <button onClick={handleExport} className="toolbar-btn">
         Export JSON
       </button>
-      <button onClick={handleImport} style={btnStyle}>
+      <button onClick={handleImport} className="toolbar-btn">
         Import JSON
       </button>
     </div>
