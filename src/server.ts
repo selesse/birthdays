@@ -1,4 +1,23 @@
-import { addChild, deleteChild, getAllChildren, updateChild } from "./database";
+import webpush from "web-push";
+import {
+  addChild,
+  addPushSubscription,
+  deleteChild,
+  deletePushSubscription,
+  getAllChildren,
+  updateChild,
+} from "./database";
+
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY ?? "";
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? "";
+
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:selesse@gmail.com",
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY,
+  );
+}
 
 const PORT = Number.parseInt(process.env.PORT || "3000");
 
@@ -95,14 +114,39 @@ const server = Bun.serve({
       "/favicon.ico": "image/x-icon",
       "/apple-touch-icon.png": "image/png",
       "/icon.png": "image/png",
+      "/sw.js": "application/javascript",
     };
     if (path in staticFiles) {
-      return new Response(Bun.file(`./public${path}`), {
-        headers: {
-          "Content-Type": staticFiles[path],
-          "Cache-Control": "public, max-age=86400",
-        },
-      });
+      const headers: Record<string, string> = {
+        "Content-Type": staticFiles[path],
+        "Cache-Control":
+          path === "/sw.js" ? "no-cache" : "public, max-age=86400",
+      };
+      if (path === "/sw.js") {
+        headers["Service-Worker-Allowed"] = "/";
+      }
+      return new Response(Bun.file(`./public${path}`), { headers });
+    }
+
+    if (path === "/api/vapid-public-key" && req.method === "GET") {
+      if (!VAPID_PUBLIC_KEY) return json({ error: "Push not configured" }, 503);
+      return json({ publicKey: VAPID_PUBLIC_KEY });
+    }
+
+    if (path === "/api/push/subscribe" && req.method === "POST") {
+      if (!VAPID_PUBLIC_KEY) return json({ error: "Push not configured" }, 503);
+      const body = (await req.json()) as {
+        endpoint: string;
+        keys: { p256dh: string; auth: string };
+      };
+      addPushSubscription(body.endpoint, body.keys.p256dh, body.keys.auth);
+      return new Response(null, { status: 201 });
+    }
+
+    if (path === "/api/push/unsubscribe" && req.method === "POST") {
+      const body = (await req.json()) as { endpoint: string };
+      deletePushSubscription(body.endpoint);
+      return new Response(null, { status: 204 });
     }
 
     if (path === "/api/events" && req.method === "GET") {

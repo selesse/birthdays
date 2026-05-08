@@ -1,0 +1,10 @@
+[Unit]
+Description=Birthday Tracker - Daily Notifications
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/alex/git/birthday-tracker
+EnvironmentFile=/home/alex/git/birthday-tracker/.env
+ExecStart=/home/alex/.bun/bin/bun run /home/alex/git/birthday-tracker/src/notify.ts

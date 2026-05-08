@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { LocalAdapter } from "../storage/LocalAdapter";
 import { App } from "./App";
 import "./index.css";
+import { checkBirthdaysAndNotify } from "./staticNotifications";
 
 const adapter = new LocalAdapter();
 
@@ -61,3 +62,5 @@ const root = document.getElementById("root");
 if (!root) throw new Error("No #root element found");
 
 createRoot(root).render(<StaticRoot />);
+
+checkBirthdaysAndNotify().catch(() => {});

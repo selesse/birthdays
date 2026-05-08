@@ -28,7 +28,10 @@ ssh "$DEPLOY_HOST" "cd $DEPLOY_PATH && ~/.bun/bin/bun install"
 
 echo "Installing user service..."
 ssh "$DEPLOY_HOST" "mkdir -p $SERVICE_DIR && cp $DEPLOY_PATH/birthday-tracker.service $SERVICE_DIR/"
+ssh "$DEPLOY_HOST" "cp $DEPLOY_PATH/birthday-tracker-notify.service $SERVICE_DIR/"
+ssh "$DEPLOY_HOST" "cp $DEPLOY_PATH/birthday-tracker-notify.timer $SERVICE_DIR/"
 ssh "$DEPLOY_HOST" "systemctl --user daemon-reload && systemctl --user enable $SERVICE_NAME"
+ssh "$DEPLOY_HOST" "systemctl --user enable --now birthday-tracker-notify.timer"
 
 echo "Restarting $SERVICE_NAME service..."
 ssh "$DEPLOY_HOST" "systemctl --user restart $SERVICE_NAME"
