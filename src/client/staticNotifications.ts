@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import type { Child } from "../storage/types";
+import type { Person } from "../storage/types";
 
 export async function checkBirthdaysAndNotify(): Promise<void> {
   if (!("Notification" in window)) return;
@@ -7,25 +7,25 @@ export async function checkBirthdaysAndNotify(): Promise<void> {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return;
 
-  const raw = localStorage.getItem("birthday_children");
+  const raw = localStorage.getItem("birthday_people");
   if (!raw) return;
 
-  let children: Child[];
+  let people: Person[];
   try {
-    children = JSON.parse(raw) as Child[];
+    people = JSON.parse(raw) as Person[];
   } catch {
     return;
   }
 
   const today = Temporal.Now.plainDateISO();
-  const todayBirthdays = children.filter((c) => {
-    const birth = Temporal.PlainDate.from(c.birthdate);
+  const todayBirthdays = people.filter((p) => {
+    const birth = Temporal.PlainDate.from(p.birthdate);
     return birth.month === today.month && birth.day === today.day;
   });
 
-  for (const child of todayBirthdays) {
-    new Notification(`Happy Birthday, ${child.name}!`, {
-      body: `Today is ${child.name}'s birthday!`,
+  for (const person of todayBirthdays) {
+    new Notification(`Happy Birthday, ${person.name}!`, {
+      body: `Today is ${person.name}'s birthday!`,
       icon: "icon.png",
     });
   }

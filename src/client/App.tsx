@@ -1,11 +1,11 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useState } from "react";
-import type { Child, StorageAdapter } from "../storage/types";
+import type { Person, StorageAdapter } from "../storage/types";
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
 import { useSSE } from "./hooks/useSSE";
 
-export type { Child };
+export type { Person };
 
 export interface AgeInfo {
   years: number;
@@ -67,33 +67,33 @@ export function App({
   storage,
   sseUrl,
 }: { storage: StorageAdapter; sseUrl?: string }) {
-  const [children, setChildren] = useState<Child[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
 
   const today = Temporal.Now.plainDateISO();
 
-  async function fetchChildren() {
-    const data = await storage.getChildren();
-    setChildren(data);
+  async function fetchPeople() {
+    const data = await storage.getPeople();
+    setPeople(data);
     setLoading(false);
   }
 
   useEffect(() => {
-    fetchChildren();
+    fetchPeople();
   }, []);
 
-  useSSE(sseUrl, setChildren);
+  useSSE(sseUrl, setPeople);
 
   async function handleAdd(name: string, birthdate: string, note?: string) {
-    const data = await storage.addChild(name, birthdate, note);
-    setChildren(data);
+    const data = await storage.addPerson(name, birthdate, note);
+    setPeople(data);
     setShowAdd(false);
   }
 
   async function handleDelete(id: string) {
-    await storage.deleteChild(id);
-    setChildren((prev) => prev.filter((c) => c.id !== id));
+    await storage.deletePerson(id);
+    setPeople((prev) => prev.filter((p) => p.id !== id));
   }
 
   async function handleEdit(
@@ -102,8 +102,8 @@ export function App({
     birthdate: string,
     note?: string,
   ) {
-    const data = await storage.updateChild(id, name, birthdate, note);
-    setChildren(data);
+    const data = await storage.updatePerson(id, name, birthdate, note);
+    setPeople(data);
   }
 
   if (loading) {
@@ -111,7 +111,7 @@ export function App({
   }
 
   // Sort: birthdays today first, then upcoming soonest, then by name
-  const sorted = [...children].sort((a, b) => {
+  const sorted = [...people].sort((a, b) => {
     const ageA = computeAge(a.birthdate, today);
     const ageB = computeAge(b.birthdate, today);
     if (ageA.daysUntilNext !== ageB.daysUntilNext) {
@@ -120,15 +120,22 @@ export function App({
     return a.name.localeCompare(b.name);
   });
 
-  const upcoming = sorted.filter((c) => {
-    const age = computeAge(c.birthdate, today);
+  const upcoming = sorted.filter((p) => {
+    const age = computeAge(p.birthdate, today);
     return age.daysUntilNext <= 30 && age.daysUntilNext > 0;
   });
 
-  const birthdayToday = sorted.filter((c) => {
-    const age = computeAge(c.birthdate, today);
+  const birthdayToday = sorted.filter((p) => {
+    const age = computeAge(p.birthdate, today);
     return age.daysUntilNext === 0;
   });
+
+  const minors = sorted.filter(
+    (p) => computeAge(p.birthdate, today).years < 18,
+  );
+  const adults = sorted.filter(
+    (p) => computeAge(p.birthdate, today).years >= 18,
+  );
 
   return (
     <div className="app-root">
@@ -145,9 +152,9 @@ export function App({
           <div>
             <h1 className="app-title">Birthday Tracker</h1>
             <p className="app-subtitle">
-              {children.length === 0
-                ? "No children added yet"
-                : `${children.length} ${children.length === 1 ? "child" : "children"}`}
+              {people.length === 0
+                ? "No people added yet"
+                : `${people.length} ${people.length === 1 ? "person" : "people"}`}
             </p>
           </div>
         </div>
@@ -174,11 +181,11 @@ export function App({
             Today's Birthdays
           </h2>
           <div className="app-section-list">
-            {birthdayToday.map((child) => (
+            {birthdayToday.map((person) => (
               <BirthdayCard
-                key={child.id}
-                child={child}
-                age={computeAge(child.birthdate, today)}
+                key={person.id}
+                person={person}
+                age={computeAge(person.birthdate, today)}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
               />
@@ -194,11 +201,11 @@ export function App({
             Coming Up (Next 30 Days)
           </h2>
           <div className="app-section-list">
-            {upcoming.map((child) => (
+            {upcoming.map((person) => (
               <BirthdayCard
-                key={child.id}
-                child={child}
-                age={computeAge(child.birthdate, today)}
+                key={person.id}
+                person={person}
+                age={computeAge(person.birthdate, today)}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
               />
@@ -207,29 +214,52 @@ export function App({
         </div>
       )}
 
-      {/* All children */}
-      {children.length === 0 ? (
+      {/* All people, split by age group */}
+      {people.length === 0 ? (
         <div className="app-empty">
           <div className="app-empty-icon">🎂</div>
-          <p>Add a child to start tracking birthdays</p>
+          <p>Add a person to start tracking birthdays</p>
         </div>
       ) : (
-        <div className="app-section">
-          <h2 className="app-section-heading app-section-heading--all">
-            All Children
-          </h2>
-          <div className="app-section-list">
-            {sorted.map((child) => (
-              <BirthdayCard
-                key={child.id}
-                child={child}
-                age={computeAge(child.birthdate, today)}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
-              />
-            ))}
-          </div>
-        </div>
+        <>
+          {minors.length > 0 && (
+            <div className="app-section">
+              <h2 className="app-section-heading app-section-heading--all">
+                Children
+              </h2>
+              <div className="app-section-list">
+                {minors.map((person) => (
+                  <BirthdayCard
+                    key={person.id}
+                    person={person}
+                    age={computeAge(person.birthdate, today)}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {adults.length > 0 && (
+            <div className="app-section">
+              <h2 className="app-section-heading app-section-heading--all">
+                Adults
+              </h2>
+              <div className="app-section-list">
+                {adults.map((person) => (
+                  <BirthdayCard
+                    key={person.id}
+                    person={person}
+                    age={computeAge(person.birthdate, today)}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

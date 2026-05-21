@@ -10,9 +10,9 @@ function makeAge(birthdate: string, todayStr: string) {
 }
 
 describe("BirthdayCard", () => {
-  test("renders child name and birthdate", () => {
+  test("renders person name and birthdate", () => {
     const age = makeAge("2020-06-15", "2026-03-27");
-    const child = {
+    const person = {
       id: "1",
       name: "Alice",
       birthdate: "2020-06-15",
@@ -20,7 +20,7 @@ describe("BirthdayCard", () => {
     };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -33,10 +33,15 @@ describe("BirthdayCard", () => {
   test("shows birthday cake emoji on birthday", () => {
     // today is the birthday
     const age = makeAge("2020-03-27", "2026-03-27");
-    const child = { id: "1", name: "Bob", birthdate: "2020-03-27", note: null };
+    const person = {
+      id: "1",
+      name: "Bob",
+      birthdate: "2020-03-27",
+      note: null,
+    };
     const { container } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -45,9 +50,9 @@ describe("BirthdayCard", () => {
     expect(container.textContent).toContain("🎂");
   });
 
-  test("shows age badge in years for older children", () => {
+  test("shows age badge in years", () => {
     const age = makeAge("2019-01-15", "2026-03-27");
-    const child = {
+    const person = {
       id: "1",
       name: "Carol",
       birthdate: "2019-01-15",
@@ -55,7 +60,7 @@ describe("BirthdayCard", () => {
     };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -65,9 +70,9 @@ describe("BirthdayCard", () => {
     expect(screen.getByText("7y 2mo")).toBeTruthy();
   });
 
-  test("shows age badge in months for children under 3", () => {
+  test("shows age badge in months for people under 3", () => {
     const age = makeAge("2024-09-27", "2026-03-27");
-    const child = {
+    const person = {
       id: "1",
       name: "Dave",
       birthdate: "2024-09-27",
@@ -75,7 +80,7 @@ describe("BirthdayCard", () => {
     };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -86,10 +91,15 @@ describe("BirthdayCard", () => {
 
   test("shows turning today label on birthday", () => {
     const age = makeAge("2022-03-27", "2026-03-27");
-    const child = { id: "1", name: "Eve", birthdate: "2022-03-27", note: null };
+    const person = {
+      id: "1",
+      name: "Eve",
+      birthdate: "2022-03-27",
+      note: null,
+    };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -100,7 +110,7 @@ describe("BirthdayCard", () => {
 
   test("shows turning tomorrow label", () => {
     const age = makeAge("2022-03-28", "2026-03-27");
-    const child = {
+    const person = {
       id: "1",
       name: "Frank",
       birthdate: "2022-03-28",
@@ -108,7 +118,7 @@ describe("BirthdayCard", () => {
     };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}
@@ -119,7 +129,7 @@ describe("BirthdayCard", () => {
 
   test("shows Edit and Delete buttons", () => {
     const age = makeAge("2020-06-15", "2026-03-27");
-    const child = {
+    const person = {
       id: "1",
       name: "Grace",
       birthdate: "2020-06-15",
@@ -127,7 +137,7 @@ describe("BirthdayCard", () => {
     };
     const { screen } = render(
       <BirthdayCard
-        child={child}
+        person={person}
         age={age}
         onDelete={mock()}
         onEdit={mock()}

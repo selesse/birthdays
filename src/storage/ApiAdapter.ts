@@ -1,52 +1,52 @@
-import type { Child, StorageAdapter } from "./types";
+import type { Person, StorageAdapter } from "./types";
 
-type ServerChild = {
+type ServerPerson = {
   id: number;
   name: string;
   birthdate: string;
   note: string | null;
 };
 
-function normalize(c: ServerChild): Child {
+function normalize(c: ServerPerson): Person {
   return { ...c, id: String(c.id) };
 }
 
 export class ApiAdapter implements StorageAdapter {
-  async getChildren(): Promise<Child[]> {
-    const res = await fetch("/api/children");
-    const data = (await res.json()) as ServerChild[];
+  async getPeople(): Promise<Person[]> {
+    const res = await fetch("/api/people");
+    const data = (await res.json()) as ServerPerson[];
     return data.map(normalize);
   }
 
-  async addChild(
+  async addPerson(
     name: string,
     birthdate: string,
     note?: string,
-  ): Promise<Child[]> {
-    await fetch("/api/children", {
+  ): Promise<Person[]> {
+    await fetch("/api/people", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, birthdate, note }),
     });
-    return this.getChildren();
+    return this.getPeople();
   }
 
-  async deleteChild(id: string): Promise<void> {
-    await fetch(`/api/children/${id}`, { method: "DELETE" });
+  async deletePerson(id: string): Promise<void> {
+    await fetch(`/api/people/${id}`, { method: "DELETE" });
   }
 
-  async updateChild(
+  async updatePerson(
     id: string,
     name: string,
     birthdate: string,
     note?: string,
-  ): Promise<Child[]> {
-    const res = await fetch(`/api/children/${id}`, {
+  ): Promise<Person[]> {
+    const res = await fetch(`/api/people/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, birthdate, note }),
     });
-    const data = (await res.json()) as ServerChild[];
+    const data = (await res.json()) as ServerPerson[];
     return data.map(normalize);
   }
 }

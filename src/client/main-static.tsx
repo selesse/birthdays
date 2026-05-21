@@ -8,8 +8,8 @@ const adapter = new LocalAdapter();
 
 function ExportImport() {
   async function handleExport() {
-    const children = await adapter.getChildren();
-    const json = JSON.stringify(children, null, 2);
+    const people = await adapter.getPeople();
+    const json = JSON.stringify(people, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -28,7 +28,7 @@ function ExportImport() {
       if (!file) return;
       try {
         const text = await file.text();
-        localStorage.setItem("birthday_children", text);
+        localStorage.setItem("birthday_people", text);
         window.location.reload();
       } catch {
         alert("Failed to import. Make sure it's a valid export file.");

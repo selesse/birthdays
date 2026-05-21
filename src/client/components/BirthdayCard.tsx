@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
-import type { AgeInfo, Child } from "../App";
+import type { AgeInfo, Person } from "../App";
 import { AddBirthday } from "./AddBirthday";
 import "./BirthdayCard.css";
 
 interface Props {
-  child: Child;
+  person: Person;
   age: AgeInfo;
   onDelete: (id: string) => void;
   onEdit: (id: string, name: string, birthdate: string, note?: string) => void;
@@ -59,7 +59,7 @@ function formatBirthdate(iso: string): string {
 
 const ACTION_WIDTH = 120;
 
-export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
+export function BirthdayCard({ person, age, onDelete, onEdit }: Props) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -126,12 +126,12 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
     return (
       <AddBirthday
         initial={{
-          name: child.name,
-          birthdate: child.birthdate,
-          note: child.note,
+          name: person.name,
+          birthdate: person.birthdate,
+          note: person.note,
         }}
         onAdd={(name, birthdate, note) => {
-          onEdit(child.id, name, birthdate, note);
+          onEdit(person.id, name, birthdate, note);
           setEditing(false);
         }}
         onCancel={() => setEditing(false)}
@@ -184,20 +184,20 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
             setOffset(0);
             return;
           }
-          if (child.note && !confirmDelete) setExpanded((v) => !v);
+          if (person.note && !confirmDelete) setExpanded((v) => !v);
         }}
       >
         {/* Main row */}
         <div
           className="card-main-row"
-          style={{ cursor: child.note ? "pointer" : "default" }}
+          style={{ cursor: person.note ? "pointer" : "default" }}
         >
           {/* Avatar with age badge overlaid */}
           <div className="card-avatar-wrap">
             <div
               className={`card-avatar${isToday ? " card-avatar--today" : ""}`}
             >
-              {isToday ? "🎂" : child.name[0].toUpperCase()}
+              {isToday ? "🎂" : person.name[0].toUpperCase()}
             </div>
             <div className="card-age-badge">{ageBadge(age)}</div>
           </div>
@@ -205,13 +205,13 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
           {/* Name + date */}
           <div className="card-name-block">
             <div className="card-name-row">
-              <span className="card-name">{child.name}</span>
-              {child.note && (
+              <span className="card-name">{person.name}</span>
+              {person.note && (
                 <span className="card-chevron">{expanded ? "▲" : "▼"}</span>
               )}
             </div>
             <div className="card-birthdate">
-              {formatBirthdate(child.birthdate)}
+              {formatBirthdate(person.birthdate)}
             </div>
           </div>
 
@@ -250,8 +250,8 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
         </div>
 
         {/* Expanded note */}
-        {expanded && child.note && (
-          <div className="card-note">{child.note}</div>
+        {expanded && person.note && (
+          <div className="card-note">{person.note}</div>
         )}
 
         {/* Delete confirm — inline banner, works for both swipe (mobile) and button (desktop) */}
@@ -260,11 +260,11 @@ export function BirthdayCard({ child, age, onDelete, onEdit }: Props) {
             className="card-delete-confirm"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="card-delete-label">Delete {child.name}?</span>
+            <span className="card-delete-label">Delete {person.name}?</span>
             <button
               type="button"
               className="card-delete-btn"
-              onClick={() => onDelete(child.id)}
+              onClick={() => onDelete(person.id)}
             >
               Delete
             </button>

@@ -1,4 +1,4 @@
-export interface Child {
+export interface Person {
   id: string; // covers both DB integers (as string) and crypto.randomUUID()
   name: string;
   birthdate: string;
@@ -6,13 +6,13 @@ export interface Child {
 }
 
 export interface StorageAdapter {
-  getChildren(): Promise<Child[]>;
-  addChild(name: string, birthdate: string, note?: string): Promise<Child[]>;
-  deleteChild(id: string): Promise<void>;
-  updateChild(
+  getPeople(): Promise<Person[]>;
+  addPerson(name: string, birthdate: string, note?: string): Promise<Person[]>;
+  deletePerson(id: string): Promise<void>;
+  updatePerson(
     id: string,
     name: string,
     birthdate: string,
     note?: string,
-  ): Promise<Child[]>;
+  ): Promise<Person[]>;
 }

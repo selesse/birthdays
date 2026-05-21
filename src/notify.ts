@@ -1,5 +1,5 @@
 import webpush from "web-push";
-import { getAllChildren, getAllPushSubscriptions } from "./database";
+import { getAllPeople, getAllPushSubscriptions } from "./database";
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY ?? "";
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? "";
@@ -19,9 +19,9 @@ const today = new Date();
 const todayMonth = today.getMonth() + 1;
 const todayDay = today.getDate();
 
-const children = getAllChildren();
-const birthdays = children.filter((c) => {
-  const [, month, day] = c.birthdate.split("-").map(Number);
+const people = getAllPeople();
+const birthdays = people.filter((p) => {
+  const [, month, day] = p.birthdate.split("-").map(Number);
   return month === todayMonth && day === todayDay;
 });
 

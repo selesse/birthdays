@@ -5,7 +5,7 @@ const DB_PATH = process.env.BIRTHDAY_DB_PATH || "./birthday-tracker.db";
 const db = new Database(DB_PATH);
 
 db.run(`
-  CREATE TABLE IF NOT EXISTS children (
+  CREATE TABLE IF NOT EXISTS people (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     name      TEXT NOT NULL,
     birthdate TEXT NOT NULL,
@@ -22,41 +22,41 @@ db.run(`
   )
 `);
 
-export interface Child {
+export interface Person {
   id: number;
   name: string;
   birthdate: string;
   note: string | null;
 }
 
-export function addChild(
+export function addPerson(
   name: string,
   birthdate: string,
   note?: string,
-): Child {
+): Person {
   const stmt = db.prepare(
-    "INSERT INTO children (name, birthdate, note) VALUES (?, ?, ?) RETURNING *",
+    "INSERT INTO people (name, birthdate, note) VALUES (?, ?, ?) RETURNING *",
   );
-  return stmt.get(name, birthdate, note ?? null) as Child;
+  return stmt.get(name, birthdate, note ?? null) as Person;
 }
 
-export function getAllChildren(): Child[] {
+export function getAllPeople(): Person[] {
   return db
-    .query("SELECT * FROM children ORDER BY birthdate ASC")
-    .all() as Child[];
+    .query("SELECT * FROM people ORDER BY birthdate ASC")
+    .all() as Person[];
 }
 
-export function deleteChild(id: number): void {
-  db.run("DELETE FROM children WHERE id = ?", [id]);
+export function deletePerson(id: number): void {
+  db.run("DELETE FROM people WHERE id = ?", [id]);
 }
 
-export function updateChild(
+export function updatePerson(
   id: number,
   name: string,
   birthdate: string,
   note?: string,
 ): void {
-  db.run("UPDATE children SET name = ?, birthdate = ?, note = ? WHERE id = ?", [
+  db.run("UPDATE people SET name = ?, birthdate = ?, note = ? WHERE id = ?", [
     name,
     birthdate,
     note ?? null,

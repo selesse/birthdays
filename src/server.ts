@@ -1,11 +1,11 @@
 import webpush from "web-push";
 import {
-  addChild,
+  addPerson,
   addPushSubscription,
-  deleteChild,
+  deletePerson,
   deletePushSubscription,
-  getAllChildren,
-  updateChild,
+  getAllPeople,
+  updatePerson,
 } from "./database";
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY ?? "";
@@ -169,11 +169,11 @@ const server = Bun.serve({
       });
     }
 
-    if (path === "/api/children" && req.method === "GET") {
-      return json(getAllChildren());
+    if (path === "/api/people" && req.method === "GET") {
+      return json(getAllPeople());
     }
 
-    if (path === "/api/children" && req.method === "POST") {
+    if (path === "/api/people" && req.method === "POST") {
       const body = (await req.json()) as {
         name: string;
         birthdate: string;
@@ -185,19 +185,19 @@ const server = Bun.serve({
       if (!body.birthdate) {
         return json({ error: "Birthdate is required" }, 400);
       }
-      const child = addChild(body.name.trim(), body.birthdate, body.note);
-      broadcast("birthday-added", child);
-      return json(child, 201);
+      const person = addPerson(body.name.trim(), body.birthdate, body.note);
+      broadcast("birthday-added", person);
+      return json(person, 201);
     }
 
-    const deleteMatch = path.match(/^\/api\/children\/(\d+)$/);
+    const deleteMatch = path.match(/^\/api\/people\/(\d+)$/);
     if (deleteMatch && req.method === "DELETE") {
-      deleteChild(Number(deleteMatch[1]));
+      deletePerson(Number(deleteMatch[1]));
       broadcast("birthday-deleted", { id: deleteMatch[1] });
       return new Response(null, { status: 204 });
     }
 
-    const updateMatch = path.match(/^\/api\/children\/(\d+)$/);
+    const updateMatch = path.match(/^\/api\/people\/(\d+)$/);
     if (updateMatch && req.method === "PUT") {
       const body = (await req.json()) as {
         name: string;
@@ -210,13 +210,13 @@ const server = Bun.serve({
       if (!body.birthdate) {
         return json({ error: "Birthdate is required" }, 400);
       }
-      updateChild(
+      updatePerson(
         Number(updateMatch[1]),
         body.name.trim(),
         body.birthdate,
         body.note,
       );
-      const updated = getAllChildren();
+      const updated = getAllPeople();
       broadcast("birthday-updated", updated);
       return json(updated);
     }
