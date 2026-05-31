@@ -55,24 +55,15 @@ const cssOutput = buildResult.outputs.find((o) => o.path.endsWith(".css"));
 const jsPath = `/${jsOutput?.path.split("/dist/")[1]}`;
 const cssPath = cssOutput ? `/${cssOutput.path.split("/dist/")[1]}` : null;
 
-const HTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birthday Tracker</title>
-  <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#b79fff">
-  ${cssPath ? `<link rel="stylesheet" href="${cssPath}">` : ""}
-</head>
-<body>
-  <div id="root"></div>
-  <script src="${jsPath}"></script>
-</body>
-</html>`;
+const HTML = (await Bun.file("./public/index.html").text())
+  .replace(
+    "</head>",
+    `${cssPath ? `  <link rel="stylesheet" href="${cssPath}">\n` : ""}</head>`,
+  )
+  .replace(
+    '<script type="module" src="../src/client/main-static.tsx"></script>',
+    `<script src="${jsPath}"></script>`,
+  );
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -111,26 +102,14 @@ const server = Bun.serve({
       });
     }
 
-    const staticFiles: Record<string, string> = {
-      "/favicon.png": "image/png",
-      "/favicon.ico": "image/x-icon",
-      "/apple-touch-icon.png": "image/png",
-      "/icon.png": "image/png",
-      "/icon-192.png": "image/png",
-      "/icon-512.png": "image/png",
-      "/manifest.json": "application/manifest+json",
-      "/sw.js": "application/javascript",
-    };
-    if (path in staticFiles) {
+    const publicFile = Bun.file(`./public${path}`);
+    if (await publicFile.exists()) {
+      const isSW = path === "/sw.js";
       const headers: Record<string, string> = {
-        "Content-Type": staticFiles[path],
-        "Cache-Control":
-          path === "/sw.js" ? "no-cache" : "public, max-age=86400",
+        "Cache-Control": isSW ? "no-cache" : "public, max-age=86400",
       };
-      if (path === "/sw.js") {
-        headers["Service-Worker-Allowed"] = "/";
-      }
-      return new Response(Bun.file(`./public${path}`), { headers });
+      if (isSW) headers["Service-Worker-Allowed"] = "/";
+      return new Response(publicFile, { headers });
     }
 
     if (path === "/api/vapid-public-key" && req.method === "GET") {
