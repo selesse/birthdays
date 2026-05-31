@@ -64,6 +64,8 @@ const HTML = `<!DOCTYPE html>
   <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#b79fff">
   ${cssPath ? `<link rel="stylesheet" href="${cssPath}">` : ""}
 </head>
 <body>
@@ -116,6 +118,7 @@ const server = Bun.serve({
       "/icon.png": "image/png",
       "/icon-192.png": "image/png",
       "/icon-512.png": "image/png",
+      "/manifest.json": "application/manifest+json",
       "/sw.js": "application/javascript",
     };
     if (path in staticFiles) {
