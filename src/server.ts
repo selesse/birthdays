@@ -114,6 +114,8 @@ const server = Bun.serve({
       "/favicon.ico": "image/x-icon",
       "/apple-touch-icon.png": "image/png",
       "/icon.png": "image/png",
+      "/icon-192.png": "image/png",
+      "/icon-512.png": "image/png",
       "/sw.js": "application/javascript",
     };
     if (path in staticFiles) {
