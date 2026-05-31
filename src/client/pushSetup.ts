@@ -7,21 +7,43 @@ function urlBase64ToUint8Array(base64: string): ArrayBuffer {
   return buf.buffer as ArrayBuffer;
 }
 
-export async function setupPushNotifications(): Promise<void> {
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+export function isPushSupported(): boolean {
+  return (
+    "serviceWorker" in navigator &&
+    "PushManager" in window &&
+    "Notification" in window
+  );
+}
+
+export async function getNotificationStatus(): Promise<
+  "unsupported" | "granted" | "denied" | "default"
+> {
+  if (!isPushSupported()) return "unsupported";
+  const reg = await navigator.serviceWorker.getRegistration();
+  if (reg) {
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) return "granted";
+  }
+  return Notification.permission as "granted" | "denied" | "default";
+}
+
+export async function setupPushNotifications(): Promise<
+  "granted" | "denied" | "error"
+> {
+  if (!isPushSupported()) return "error";
 
   const permission = await Notification.requestPermission();
-  if (permission !== "granted") return;
+  if (permission !== "granted") return "denied";
 
   const res = await fetch("/api/vapid-public-key");
-  if (!res.ok) return;
+  if (!res.ok) return "error";
   const { publicKey } = (await res.json()) as { publicKey: string };
 
   const reg = await navigator.serviceWorker.register("/sw.js");
   await navigator.serviceWorker.ready;
 
   const existing = await reg.pushManager.getSubscription();
-  if (existing) return;
+  if (existing) return "granted";
 
   const subscription = await reg.pushManager.subscribe({
     userVisibleOnly: true,
@@ -33,4 +55,6 @@ export async function setupPushNotifications(): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription.toJSON()),
   });
+
+  return "granted";
 }

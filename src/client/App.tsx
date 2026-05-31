@@ -4,6 +4,7 @@ import type { Person, StorageAdapter } from "../storage/types";
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
 import { useSSE } from "./hooks/useSSE";
+import { getNotificationStatus, setupPushNotifications } from "./pushSetup";
 
 export type { Person };
 
@@ -70,6 +71,9 @@ export function App({
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [notifStatus, setNotifStatus] = useState<
+    "unsupported" | "granted" | "denied" | "default" | "loading"
+  >("loading");
 
   const today = Temporal.Now.plainDateISO();
 
@@ -81,6 +85,7 @@ export function App({
 
   useEffect(() => {
     fetchPeople();
+    getNotificationStatus().then(setNotifStatus);
   }, []);
 
   useSSE(sseUrl, setPeople);
@@ -89,6 +94,11 @@ export function App({
     const data = await storage.addPerson(name, birthdate, note);
     setPeople(data);
     setShowAdd(false);
+  }
+
+  async function handleEnableNotifications() {
+    const result = await setupPushNotifications();
+    setNotifStatus(result === "granted" ? "granted" : result);
   }
 
   async function handleDelete(id: string) {
@@ -158,13 +168,33 @@ export function App({
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowAdd(!showAdd)}
-          className={`app-btn-add${showAdd ? " app-btn-add--cancel" : ""}`}
-        >
-          {showAdd ? "Cancel" : "+ Add Birthday"}
-        </button>
+        <div className="app-header-actions">
+          {notifStatus === "default" && (
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              className="app-btn-notify"
+              title="Enable birthday notifications"
+            >
+              🔔
+            </button>
+          )}
+          {notifStatus === "denied" && (
+            <span
+              className="app-btn-notify app-btn-notify--denied"
+              title="Notifications blocked in browser settings"
+            >
+              🔕
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowAdd(!showAdd)}
+            className={`app-btn-add${showAdd ? " app-btn-add--cancel" : ""}`}
+          >
+            {showAdd ? "Cancel" : "+ Add Birthday"}
+          </button>
+        </div>
       </div>
 
       {/* Add form */}

@@ -131,6 +131,27 @@ body {
   background: var(--color-bg-subtle);
 }
 
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-btn-notify {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.app-btn-notify--denied {
+  cursor: default;
+  opacity: 0.5;
+}
+
 .app-section {
   margin-bottom: 32px;
 }
