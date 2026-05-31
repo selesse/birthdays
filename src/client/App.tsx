@@ -1,6 +1,11 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Person, StorageAdapter } from "../storage/types";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  readonly userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
 import { useSSE } from "./hooks/useSSE";
@@ -74,6 +79,8 @@ export function App({
   const [notifStatus, setNotifStatus] = useState<
     "unsupported" | "granted" | "denied" | "default" | "loading"
   >("loading");
+  const [installable, setInstallable] = useState(false);
+  const installPrompt = useRef<BeforeInstallPromptEvent | null>(null);
 
   const today = Temporal.Now.plainDateISO();
 
@@ -86,6 +93,20 @@ export function App({
   useEffect(() => {
     fetchPeople();
     getNotificationStatus().then(setNotifStatus);
+
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      installPrompt.current = e as BeforeInstallPromptEvent;
+      setInstallable(true);
+    };
+    const onInstalled = () => setInstallable(false);
+
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
   }, []);
 
   useSSE(sseUrl, setPeople);
@@ -94,6 +115,14 @@ export function App({
     const data = await storage.addPerson(name, birthdate, note);
     setPeople(data);
     setShowAdd(false);
+  }
+
+  async function handleInstall() {
+    if (!installPrompt.current) return;
+    await installPrompt.current.prompt();
+    const { outcome } = await installPrompt.current.userChoice;
+    if (outcome === "accepted") setInstallable(false);
+    installPrompt.current = null;
   }
 
   async function handleEnableNotifications() {
@@ -169,6 +198,16 @@ export function App({
           </div>
         </div>
         <div className="app-header-actions">
+          {installable && (
+            <button
+              type="button"
+              onClick={handleInstall}
+              className="app-btn-install"
+              title="Install app"
+            >
+              Install app
+            </button>
+          )}
           {notifStatus === "default" && (
             <button
               type="button"
