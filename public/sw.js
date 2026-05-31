@@ -1,7 +1,9 @@
 const CACHE = "birthdays-v1";
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.add("/")));
+  event.waitUntil(
+    caches.open(CACHE).then((cache) => cache.add(self.registration.scope)),
+  );
   self.skipWaiting();
 });
 
@@ -32,7 +34,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE).then((c) => c.put(event.request, clone));
           return res;
         })
-        .catch(() => caches.match("/")),
+        .catch(() => caches.match(self.registration.scope)),
     );
     return;
   }
@@ -69,12 +71,12 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title ?? "Birthday!", {
       body: data.body ?? "",
-      icon: "/icon.png",
+      icon: new URL("icon.png", self.registration.scope).href,
     }),
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow("/"));
+  event.waitUntil(clients.openWindow(self.registration.scope));
 });
