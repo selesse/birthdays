@@ -8,6 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 import { AddBirthday } from "./components/AddBirthday";
 import { BirthdayCard } from "./components/BirthdayCard";
+import { CompareBar } from "./components/CompareBar";
 import { useSSE } from "./hooks/useSSE";
 import { getNotificationStatus, setupPushNotifications } from "./pushSetup";
 
@@ -21,6 +22,34 @@ export interface AgeInfo {
   daysUntilNext: number;
   nextBirthday: string;
   turningAge: number;
+}
+
+export interface AgeDifference {
+  years: number;
+  months: number;
+  days: number;
+  totalDays: number;
+  firstIsOlder: boolean;
+}
+
+export function computeAgeDifference(
+  birthdateA: string,
+  birthdateB: string,
+): AgeDifference {
+  const a = Temporal.PlainDate.from(birthdateA);
+  const b = Temporal.PlainDate.from(birthdateB);
+  const firstIsOlder = Temporal.PlainDate.compare(a, b) <= 0;
+  const older = firstIsOlder ? a : b;
+  const younger = firstIsOlder ? b : a;
+
+  const totalDays = older.until(younger, { largestUnit: "days" }).days;
+  const years = older.until(younger, { largestUnit: "years" }).years;
+  const afterYears = older.add({ years });
+  const months = afterYears.until(younger, { largestUnit: "months" }).months;
+  const afterMonths = afterYears.add({ months });
+  const days = afterMonths.until(younger, { largestUnit: "days" }).days;
+
+  return { years, months, days, totalDays, firstIsOlder };
 }
 
 export function computeAge(
@@ -76,6 +105,8 @@ export function App({
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
   const [notifStatus, setNotifStatus] = useState<
     "unsupported" | "granted" | "denied" | "default" | "loading"
   >("loading");
@@ -145,6 +176,20 @@ export function App({
     setPeople(data);
   }
 
+  function handleToggleCompareMode() {
+    setCompareMode((v) => !v);
+    setShowAdd(false);
+    setSelected([]);
+  }
+
+  function handleToggleSelect(id: string) {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length < 2) return [...prev, id];
+      return [prev[1], id];
+    });
+  }
+
   if (loading) {
     return <div className="app-loading">Loading...</div>;
   }
@@ -177,7 +222,7 @@ export function App({
   );
 
   return (
-    <div className="app-root">
+    <div className={`app-root${compareMode ? " app-root--compare" : ""}`}>
       {/* Header */}
       <div className="app-header">
         <div className="app-header-left">
@@ -228,13 +273,34 @@ export function App({
           )}
           <button
             type="button"
-            onClick={() => setShowAdd(!showAdd)}
+            onClick={handleToggleCompareMode}
+            className={`app-btn-compare${compareMode ? " app-btn-compare--active" : ""}`}
+          >
+            {compareMode ? "Cancel" : "Compare Ages"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowAdd((v) => !v);
+              setCompareMode(false);
+              setSelected([]);
+            }}
             className={`app-btn-add${showAdd ? " app-btn-add--cancel" : ""}`}
           >
             {showAdd ? "Cancel" : "+ Add Birthday"}
           </button>
         </div>
       </div>
+
+      {compareMode && (
+        <CompareBar
+          people={selected
+            .map((id) => people.find((p) => p.id === id))
+            .filter((p): p is Person => !!p)}
+          onRemove={handleToggleSelect}
+          onClose={handleToggleCompareMode}
+        />
+      )}
 
       {/* Add form */}
       {showAdd && (
@@ -257,6 +323,9 @@ export function App({
                 age={computeAge(person.birthdate, today)}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
+                compareMode={compareMode}
+                selected={selected.includes(person.id)}
+                onToggleSelect={handleToggleSelect}
               />
             ))}
           </div>
@@ -277,6 +346,9 @@ export function App({
                 age={computeAge(person.birthdate, today)}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
+                compareMode={compareMode}
+                selected={selected.includes(person.id)}
+                onToggleSelect={handleToggleSelect}
               />
             ))}
           </div>
@@ -304,6 +376,9 @@ export function App({
                     age={computeAge(person.birthdate, today)}
                     onDelete={handleDelete}
                     onEdit={handleEdit}
+                    compareMode={compareMode}
+                    selected={selected.includes(person.id)}
+                    onToggleSelect={handleToggleSelect}
                   />
                 ))}
               </div>
@@ -323,6 +398,9 @@ export function App({
                     age={computeAge(person.birthdate, today)}
                     onDelete={handleDelete}
                     onEdit={handleEdit}
+                    compareMode={compareMode}
+                    selected={selected.includes(person.id)}
+                    onToggleSelect={handleToggleSelect}
                   />
                 ))}
               </div>

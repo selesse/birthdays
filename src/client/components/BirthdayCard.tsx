@@ -8,6 +8,9 @@ interface Props {
   age: AgeInfo;
   onDelete: (id: string) => void;
   onEdit: (id: string, name: string, birthdate: string, note?: string) => void;
+  compareMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 function ageBadge(age: AgeInfo): string {
@@ -59,7 +62,15 @@ function formatBirthdate(iso: string): string {
 
 const ACTION_WIDTH = 120;
 
-export function BirthdayCard({ person, age, onDelete, onEdit }: Props) {
+export function BirthdayCard({
+  person,
+  age,
+  onDelete,
+  onEdit,
+  compareMode = false,
+  selected = false,
+  onToggleSelect,
+}: Props) {
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -143,42 +154,48 @@ export function BirthdayCard({ person, age, onDelete, onEdit }: Props) {
   return (
     <div className="card-wrapper">
       {/* Action buttons hidden behind the card, revealed by swiping left */}
-      <div className="card-actions-tray">
-        <button
-          type="button"
-          className="card-tray-edit"
-          onClick={() => {
-            setIsAnimating(true);
-            setOffset(0);
-            setEditing(true);
-          }}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          className="card-tray-delete"
-          onClick={() => {
-            setConfirmDelete(true);
-            setIsAnimating(true);
-            setOffset(0);
-          }}
-        >
-          Delete
-        </button>
-      </div>
+      {!compareMode && (
+        <div className="card-actions-tray">
+          <button
+            type="button"
+            className="card-tray-edit"
+            onClick={() => {
+              setIsAnimating(true);
+              setOffset(0);
+              setEditing(true);
+            }}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            className="card-tray-delete"
+            onClick={() => {
+              setConfirmDelete(true);
+              setIsAnimating(true);
+              setOffset(0);
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      )}
 
       {/* Card — slides left on swipe to reveal actions */}
       <div
-        className={`card-slide${isToday ? " card-slide--today" : ""}`}
+        className={`card-slide${isToday ? " card-slide--today" : ""}${selected ? " card-slide--selected" : ""}`}
         style={{
-          transform: `translateX(${offset}px)`,
+          transform: `translateX(${compareMode ? 0 : offset}px)`,
           transition: isAnimating ? "transform 0.2s ease" : "none",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={compareMode ? undefined : handleTouchStart}
+        onTouchMove={compareMode ? undefined : handleTouchMove}
+        onTouchEnd={compareMode ? undefined : handleTouchEnd}
         onClick={() => {
+          if (compareMode) {
+            onToggleSelect?.(person.id);
+            return;
+          }
           if (isSwiped) {
             setIsAnimating(true);
             setOffset(0);
@@ -190,8 +207,17 @@ export function BirthdayCard({ person, age, onDelete, onEdit }: Props) {
         {/* Main row */}
         <div
           className="card-main-row"
-          style={{ cursor: person.note ? "pointer" : "default" }}
+          style={{ cursor: person.note || compareMode ? "pointer" : "default" }}
         >
+          {/* Selection indicator, compare mode only */}
+          {compareMode && (
+            <div
+              className={`card-select-indicator${selected ? " card-select-indicator--checked" : ""}`}
+            >
+              {selected ? "✓" : ""}
+            </div>
+          )}
+
           {/* Avatar with age badge overlaid */}
           <div className="card-avatar-wrap">
             <div
@@ -222,7 +248,7 @@ export function BirthdayCard({ person, age, onDelete, onEdit }: Props) {
             </span>
 
             {/* Desktop-only action buttons (hidden on touch devices via CSS) */}
-            {!confirmDelete && (
+            {!confirmDelete && !compareMode && (
               <div className="card-actions">
                 <button
                   type="button"
